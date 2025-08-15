@@ -10,9 +10,27 @@ app = Flask(__name__)
 spec = FlaskPydanticSpec('flask',
                          title="API_Oficina",
                          version="1.0.0")
-
-spec.register(app)
-app.config['SECRET_KEY'] = 'secret'
+# jwt = JWTManager(app)
+#
+# spec.register(app)
+# app.config['SECRET_KEY'] = 'secret'
+#
+#
+# def admin_required(fn):
+#     @wraps(fn)
+#     def wrapper(*args, **kwargs):
+#         concurrent_user = get_jwt_identity()
+#         db_session = SessionLocalExemplo()
+#         try:
+#             sql = select(Clientes).where(cliente.id == concurrent_user)
+#             user = db_session.execute(sql).scalar()
+#             if user and user.papel == "admin":
+#                 return fn(*args, **kwargs)
+#             return jsonify({
+#                 "msg":"Acesso negado: Requer privilégios de administrador"}), 403
+#         finally:
+#             db_session.close()
+#     return wrapper
 
 
 @app.route('/novo_cliente', methods=['POST'])
@@ -51,7 +69,7 @@ def novo_cliente():
             cpf_existe = db_session.query(Clientes).filter(Clientes.cpf == cpf).scalar()
             if cpf_existe:
                 return jsonify({
-                    "error": "Este CPF já esta cadastrado"
+                    "erro": "Este CPF já esta cadastrado"
                 }), 400
 
 
@@ -59,7 +77,7 @@ def novo_cliente():
             telef_existe = db_session.query(Clientes).filter(Clientes.telefone == telefone).scalar()
             if telef_existe:
                 return jsonify({
-                    "error": "Este numero de Telefone já esta cadastrado"
+                    "erro": "Este numero de Telefone já esta cadastrado"
                 }), 400
 
 
@@ -82,7 +100,7 @@ def novo_cliente():
 
     except ValueError:
         return jsonify({
-            "error": "Não foi possivel cadastrar este Usuario"
+            "erro": "Não foi possivel cadastrar este Usuario"
         }), 400
 
     finally:
@@ -90,6 +108,7 @@ def novo_cliente():
 
 
 @app.route('/lista_clientes', methods=['GET']) #proteger
+# @jwt_required
 def lista_clientes():
     """
         API para listar clientes
@@ -106,8 +125,10 @@ def lista_clientes():
         sql_lista_clientes = select(Clientes)
         resultado_clientes = db_session.execute(sql_lista_clientes).scalars().all()
         clientes = []
+
         for n in resultado_clientes:
             clientes.append(n.serialize_cliente())
+        print(clientes)
 
         return jsonify({
             "lista_clientes": clientes
@@ -123,6 +144,7 @@ def lista_clientes():
 
 
 @app.route('/editar_cliente/<int:id_cliente>', methods=["POST"]) #proteger
+# @jwt_required
 def editar_cliente(id_cliente):
     """
         API para editar clientes
@@ -196,6 +218,7 @@ def editar_cliente(id_cliente):
 
 
 @app.route('/novo_veiculo', methods=['POST']) #proteger
+# @jwt_required
 def novo_veiculo():
     """
         API para cadastrar veiculos
@@ -233,7 +256,7 @@ def novo_veiculo():
             placa_existe = db_session.query(Veiculos).filter(Veiculos.placa == placa).scalar()
             if placa_existe:
                 return jsonify({
-                    "error": "Esta Placa já esta cadastrada"
+                    "erro": "Esta Placa já esta cadastrada"
                 }), 400
 
 
@@ -258,13 +281,14 @@ def novo_veiculo():
 
     except ValueError:
         return jsonify({
-            "error": "Não foi possivel cadastrar este Veiculo"
+            "erro": "Não foi possivel cadastrar este Veiculo"
         }), 400
 
     finally:
         db_session.close()
 
 @app.route('/lista_veiculos', methods=['GET']) #proteger
+# @jwt_required
 def lista_veiculos():
     """
         API para listar veiculos
@@ -298,6 +322,7 @@ def lista_veiculos():
 
 
 @app.route('/editar_veiculo/<int:id_veiculo>', methods=["POST"]) #proteger
+# @jwt_required
 def editar_veiculo(id_veiculo):
     """
         API para editar veiculos
@@ -365,6 +390,7 @@ def editar_veiculo(id_veiculo):
 
 
 @app.route('/orden_servico', methods=['POST']) #proteger
+# @jwt_required
 def novo_servico():
     """
         API para cadastrar serviços
@@ -422,7 +448,7 @@ def novo_servico():
 
     except ValueError:
         return jsonify({
-            "error": "Não foi possivel cadastrar este serviço"
+            "erro": "Não foi possivel cadastrar este serviço"
         }), 400
 
     finally:
@@ -430,6 +456,7 @@ def novo_servico():
 
 
 @app.route('/lista_servicos', methods=['GET']) #proteger
+# @jwt_required
 def lista_ordens():
     """
         API para listar serviços
@@ -463,6 +490,7 @@ def lista_ordens():
 
 
 @app.route('/editar_orden/<int:id_orden>', methods=['POST']) #proteger
+# @jwt_required
 def editar_orden(id_orden):
     """
         API para editar serviços

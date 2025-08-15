@@ -1,5 +1,7 @@
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Float
 from sqlalchemy.orm import scoped_session, sessionmaker, declarative_base
+# from werkzeug.security import generate_password_hash, check_password_hash
+# from flask_jwt_extended import create_access_token, jwt_required, JWTManager, get_jwt
 
 engine = create_engine('sqlite:///oficina.sqlite')
 db_session = scoped_session(sessionmaker(bind=engine))
@@ -14,6 +16,14 @@ class Clientes(Base):
     cpf = Column(Integer, nullable=False, unique=True)
     telefone = Column(String, nullable=False, unique=True)
     endereco = Column(String, nullable=False)
+
+
+    # def set_senha_hash(self, senha):
+    #     self.senha_hash = generate_password_hash(senha)
+    #
+    # def check_password(self, senha):
+    #         return check_password_hash(self.senha_hash, senha)
+
 
     def save(self):
         db_session.add(self)
@@ -60,7 +70,7 @@ class Veiculos(Base):
             "ID Veiculo": self.id_veiculo,
             "Modelo": self.modelo,
             "placa": self.placa,
-            "ano_fabri ": self.ano_fabri,
+            "ano_fabri": self.ano_fabri,
             "id_cliente": self.id_cliente
 
 
@@ -92,10 +102,10 @@ class Ordens(Base):
             "veiculo": self.veiculo,
             "id_veiculo": self.id_veiculo,
             "data_abertura": self.data_abertura,
-            "Descricao": self.descricao,
+            "descricao": self.descricao,
             "status": self.status,
             "valor": self.valor,
-            "ID Serviço": self.id_orden
+            "id_orden": self.id_orden
         }
 
         return dados_ordem
